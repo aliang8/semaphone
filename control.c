@@ -6,6 +6,10 @@
 #include <string.h>
 #include <errno.h>
 
+#include <unistd.h>
+#include <fcntl.h>
+#include <stat.h>
+
 #include <sys/types.h> 
 #include <sys/ipc.h> 
 #include <sys/sem.h>
@@ -13,10 +17,10 @@
 //Declaration required on linux
 /*
 union semun {
-int val;
-struct semid_ds *duf;
-unsigned short *array;
-struct seminfo * _buf;
+	int val;
+	struct semid_ds *duf;
+	unsigned short *array;
+	struct seminfo * _buf;
 }
 */
 
@@ -33,21 +37,31 @@ int main(int argc, char *argv[]) {
     int sc;
 
     if (strncmp(argv[1], "-c", strlen(argv[1])) == 0){
-    	/*
-    	if( semid >= 0 ) {
-    		printf("semaphore created: %d\n", semid);
+    	//create shared mem segment
 
-    		int value = atoi(s);
-    		union semun su;
-    		su.val = value;
+    	int shmid ;
+    	char* data;
 
-    		sc = semctl( semid, 0, SETVAL, su );
-    		printf("value set: %d\n", sc );
+    	shmid = shmget( ftok("control.c",12), 1024, IPC_CREAT | 0644 );
+    	data = smhat(smhid, (void *)0, 0);
+
+    	//end shared mem
+
+    	//opening file
+    	int fd; 
+    	fd = open( "story.txt", O_TRUNC); 
+
+    	FILE *file;
+    	int fd; 
+    	file = fopen("story.txt", "r");
+    	fd = fgetc(file);
+    	while( fd != EOF) {
+    		printf(" %fd\n", fd);
+    		
     	}
-    	else {
-    		printf("exists");
-    	}
-    	*/
+
+
+    	//close(fd) ????
 
 		semid = semget(key, 1, IPC_CREAT | 0644);
 		printf("semaphore createdL %d\n", semid);
