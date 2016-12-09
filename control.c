@@ -46,49 +46,33 @@ int main(int argc, char *argv[]) {
     	data = smhat(smhid, (void *)0, 0);
 
     	//end shared mem
+	semid = semget(key, 1, IPC_CREAT | 0644);
+	printf("semaphore createdL %d\n", semid);
+	union semun su;
+	su.val = 1;
+	//setting semaphore value
+	sc = semctl(semid, 0, SETVAL, su);
+	printf("value set: %d\n", sc);
+	
+    }
 
-    	//opening file
-    	int fd; 
-    	fd = open( "story.txt", O_TRUNC); 
-
-    	FILE *file;
-    	int fd; 
-    	file = fopen("story.txt", "r");
-    	fd = fgetc(file);
-    	while( fd != EOF) {
-    		printf(" %fd\n", fd);
-    		
-    	}
-
-
-    	//close(fd) ????
-
-		semid = semget(key, 1, IPC_CREAT | 0644);
-		printf("semaphore createdL %d\n", semid);
-		union semun su;
-		su.val = 1;
-		//setting semaphore value
-		sc = semctl(semid, 0, SETVAL, su);
-		printf("value set: %d\n", sc);
-
-		}
-
-		else if (strncmp(argv[1], "-v", strlen(argv[1])) == 0){
-		semid = semget(key, 1, 0);
-		//getting the value of a semaphore
-		sc = semctl(semid, 0, GETVAL);
-
-		printf("semaphore value: %d\n",sc);
-		}
-
-		else if(strncmp(argv[1], "-r", strlen(argv[1])) == 0){
-		semid = semget(key, 1, 0);
-		//removing a semaphore
-		sc = semctl(semid, 0, IPC_RMID);
-		printf("semaphore removed: %d\n", sc);
-		}
-
-
-		return 0;
-
+    else if (strncmp(argv[1], "-v", strlen(argv[1])) == 0){
+      //opening the file and reading/outputing recursively
+      int c;
+      FILE *fp;
+      fp = fopen("story.txt","r");
+      if (fp){
+	while ((c = getc(fp)) != EOF)
+	  putchar(c);
+	fclose(fp);
+      }
+    }
+    
+    else if(strncmp(argv[1], "-r", strlen(argv[1])) == 0){
+      semid = semget(key, 1, 0);
+      //removing a semaphore
+      sc = semctl(semid, 0, IPC_RMID);
+      printf("semaphore removed: %d\n", sc);
+    }
+    return 0;
 }
