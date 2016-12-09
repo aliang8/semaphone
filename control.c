@@ -33,30 +33,31 @@ sem_op: -1 (Down(S)), 1 (Up(S))
 int main(int argc, char *argv[]) {
 
     int semid;
-    int key = ftok("makefile" , 22);
-    int sc;
-
+    int key = ftok("story.txt" , 22);
+    int sc; 
+    
     if (strncmp(argv[1], "-c", strlen(argv[1])) == 0){
-    	//create shared mem segment
-
-    	int shmid ;
+      //create shared mem segment    
+    	int shmid;
     	char* data;
+	int fd;
 
-    	shmid = shmget( ftok("control.c",12), 1024, IPC_CREAT | 0644 );
+    	shmid = shmget( ftok("story.txt",12), 1024, IPC_CREAT | 0644 );
     	data = smhat(smhid, (void *)0, 0);
 
     	//end shared mem
 	semid = semget(key, 1, IPC_CREAT | 0644);
-	printf("semaphore createdL %d\n", semid);
+	printf("semaphore created %d\n", semid);
+	
+	fd = open("story.txt", O_TRUNC | 0644);
+	
 	union semun su;
 	su.val = 1;
 	//setting semaphore value
 	sc = semctl(semid, 0, SETVAL, su);
 	printf("value set: %d\n", sc);
 	
-    }
-
-    else if (strncmp(argv[1], "-v", strlen(argv[1])) == 0){
+    } else if (strncmp(argv[1], "-v", strlen(argv[1])) == 0){
       //opening the file and reading/outputing recursively
       int c;
       FILE *fp;
@@ -66,11 +67,9 @@ int main(int argc, char *argv[]) {
 	  putchar(c);
 	fclose(fp);
       }
-    }
-    
-    else if(strncmp(argv[1], "-r", strlen(argv[1])) == 0){
-      semid = semget(key, 1, 0);
+    } else if(strncmp(argv[1], "-r", strlen(argv[1])) == 0){
       //removing a semaphore
+      semid = semget(key, 1, 0);
       sc = semctl(semid, 0, IPC_RMID);
       printf("semaphore removed: %d\n", sc);
     }
