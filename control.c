@@ -8,45 +8,55 @@
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <stat.h>
+#include <sys/stat.h>
 
 #include <sys/types.h> 
 #include <sys/ipc.h> 
 #include <sys/sem.h>
 
 //Declaration required on linux
-/*
+
 union semun {
-	int val;
-	struct semid_ds *duf;
-	unsigned short *array;
-	struct seminfo * _buf;
+int val;
+struct semid_ds *duf;
+unsigned short *array;
+struct seminfo * _buf;
 }
-*/
 
 
 /*
-sem_num: the index of the semaphore you want to work on
-sem_op: -1 (Down(S)), 1 (Up(S))
+  sem_num: the index of the semaphore you want to work on
+  sem_op: -1 (Down(S)), 1 (Up(S))
 */
 
 int main(int argc, char *argv[]) {
 
-    int semid;
-    int key = ftok("story.txt" , 22);
-    int sc; 
-    
-    if (strncmp(argv[1], "-c", strlen(argv[1])) == 0){
-      //create shared mem segment    
-    	int shmid;
-    	char* data;
-	int fd;
+int semid;
+int key = ftok("story.txt" , 22);
+int sc; 
 
-    	shmid = shmget( ftok("story.txt",12), 1024, IPC_CREAT | 0644 );
-    	data = smhat(smhid, (void *)0, 0);
+if (strncmp(argv[1], "-c", strlen(argv[1])) == 0){
+//create shared mem segment    
+int shm_id;
+char* data;
+int fd;
+int *shm_ptr;
 
-    	//end shared mem
-	semid = semget(key, 1, IPC_CREAT | 0644);
+shm_id = shmget( ftok("story.txt",12), 1024, IPC_CREAT | 0644 );
+if (shm_id < 0){
+printf("shmget error\n");
+exit(1);
+}
+
+//attaching the shared memory segment
+shm_ptr = (int *)shmat(shmid, NULL, 0);
+if ((int) shm_ptr == -1){
+printf("shmat error\n");
+exit(1);
+}
+
+//end shared mem
+semid = semget(key, 1, IPC_CREAT | 0644);
 	printf("semaphore created %d\n", semid);
 	
 	fd = open("story.txt", O_TRUNC | 0644);
