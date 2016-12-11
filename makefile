@@ -9,7 +9,8 @@ control.c: control.c
 	gcc -c control.c -o control
 
 clean:
-	rm *.o
+	rm control
+	rm client
 	rm *~
 
 control: all

@@ -23,16 +23,10 @@ union semun {
   struct seminfo * _buf;
 };
 
-  
-/*
-  sem_num: the index of the semaphore you want to work on
-  sem_op: -1 (Down(S)), 1 (Up(S))
-*/
-
 int main(int argc, char *argv[]) {
   
   int semid;
-  int key = ftok("makefile" , 22);
+  int key = ftok("makefile", 22);
   int sc; 
   //struct shmid_ds d;
   
@@ -42,14 +36,11 @@ int main(int argc, char *argv[]) {
   }
   
   if (strncmp(argv[1], "-c", strlen(argv[1])) == 0){
-    int shm_id;
+    int shm_id, *shm_ptr, value, fd;
     char* data;
-    int fd;
-    int *shm_ptr;
-    int value;
 
     semid = semget(key, 1, IPC_CREAT | IPC_EXCL | 0644);
-    if (semid) {
+    if (semid > 0) {
       //create the text file
       fd = open("story.txt", O_CREAT | O_TRUNC | 0644);
       close(fd);
@@ -60,7 +51,7 @@ int main(int argc, char *argv[]) {
       }
 
       //creating and attaching shared memory segment
-      shm_id = shmget(key, 4, IPC_CREAT | 0644);
+      shm_id = shmget(key, sizeof(int), IPC_CREAT | IPC_EXCL | 0644);
       shm_ptr = (int *) shmat(shm_id,0,0);
 
       //detaching from shared memory pointer
